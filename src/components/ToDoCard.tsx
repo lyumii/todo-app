@@ -3,20 +3,21 @@ export interface ToDoProps {
   title: string;
   timestamp: string;
   description?: string;
-  deadline?: string;
+  deadline: boolean;
+  deadlineDate?: string;
   completed: boolean;
   completedTimestamp?: string;
 }
 
 export default function ToDoCard(props: ToDoProps) {
   return (
-    <section>
+    <article>
       <h2>{props.title}</h2>
       <p>{props.timestamp}</p>
       <p>{props.description}</p>
       {props.deadline && <p>{props.deadline}</p>}
       {!props.completed && <input type="checkbox" />}
       {props.completedTimestamp && <p>{props.completedTimestamp}</p>}
-    </section>
+    </article>
   );
 }

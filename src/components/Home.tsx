@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
-import { ToDoProps } from "./ToDoCard";
+import ToDoCard, { ToDoProps } from "./ToDoCard";
 
 export default function Home() {
   const [toDO, setToDo] = useState<ToDoProps[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [deadlineState, setDeadlineState] = useState({
+  const [deadlineState, setDeadlineState] = useState(false);
+  const [deadlineDate, setDeadlineDate] = useState({
     day: "",
     month: "",
     year: "",
@@ -56,7 +57,7 @@ export default function Home() {
         <label>Day:</label>
         <select
           onChange={(e) =>
-            setDeadlineState({ ...deadlineState, day: e.target.value })
+            setDeadlineDate({ ...deadlineDate, day: e.target.value })
           }
         >
           {day()}
@@ -65,7 +66,7 @@ export default function Home() {
         <label>Month:</label>
         <select
           onChange={(e) =>
-            setDeadlineState({ ...deadlineState, month: e.target.value })
+            setDeadlineDate({ ...deadlineDate, month: e.target.value })
           }
         >
           {month()}
@@ -74,7 +75,7 @@ export default function Home() {
         <label>Year:</label>
         <select
           onChange={(e) =>
-            setDeadlineState({ ...deadlineState, year: e.target.value })
+            setDeadlineDate({ ...deadlineDate, year: e.target.value })
           }
         >
           {year()}
@@ -89,7 +90,8 @@ export default function Home() {
       title: title,
       timestamp: new Date().toISOString(),
       description: description,
-      deadline: `${deadlineState.year}-${deadlineState.month}-${deadlineState.day}`,
+      deadline: deadlineState,
+      deadlineDate: `${deadlineDate.year}-${deadlineDate.month}-${deadlineDate.day}`,
       completed: false,
       completedTimestamp: "",
     };
@@ -106,7 +108,12 @@ export default function Home() {
   return (
     <section>
       <h2>Add New Task:</h2>
-      <form onSubmit={addToDo}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addToDo();
+        }}
+      >
         <label htmlFor="titleinput">Title</label>
         <input
           type="text"
@@ -123,9 +130,31 @@ export default function Home() {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <p>{deadline()}</p>
+        <legend>Set A Deadline:</legend>
+        <select name="" id="">
+          <option onSelect={() => setDeadlineState(false)} value="">
+            No Deadline
+          </option>
+          <option onSelect={() => setDeadlineState(true)} value="">
+            Custom Date
+          </option>
+        </select>
+        {deadlineState && deadline()}
         <button>Add Task</button>
       </form>
+      <h2>Current Task List:</h2>
+      {toDO.map((task) => (
+        <ToDoCard
+          key={task.id}
+          id={task.id}
+          title={task.title}
+          description={task.description || undefined}
+          deadline={task.deadline}
+          deadlineDate={task.deadline === true ? task.deadlineDate : undefined}
+          timestamp={task.timestamp}
+          completed={task.completed}
+        />
+      ))}
     </section>
   );
 }
