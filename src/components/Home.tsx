@@ -3,6 +3,7 @@ import ToDoCard, { ToDoProps } from "./ToDoCard";
 
 export default function Home() {
   const [toDO, setToDo] = useState<ToDoProps[]>([]);
+  const [completedToDo, setCompletedToDo] = useState<ToDoProps[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [deadlineState, setDeadlineState] = useState(false);
@@ -94,6 +95,7 @@ export default function Home() {
       deadlineDate: `${deadlineDate.year}-${deadlineDate.month}-${deadlineDate.day}`,
       completed: false,
       completedTimestamp: "",
+      disableBtn: false,
     };
     const toDoUpdate = [...toDO, newToDO];
     setToDo(toDoUpdate);
@@ -105,6 +107,31 @@ export default function Home() {
     toDoArray = toDoArray.filter((toDo: ToDoProps) => toDo.id !== id);
     localStorage.setItem("toDoArray", JSON.stringify(toDoArray));
     setToDo(toDoArray);
+  };
+
+  const toggleCompleted = (id: string) => {
+    const completedToDos = JSON.parse(
+      localStorage.getItem("completedToDos") || "[]"
+    );
+    const completedTask = toDO.find((task: ToDoProps) => task.id === id);
+    const updateCompletedToDos = [...completedToDos, completedTask];
+    const updatedToDoArray = toDO.map((task: ToDoProps) =>
+      task.id === id
+        ? {
+            ...task,
+            completed: true,
+            completedTimestamp: new Date().toISOString(),
+          }
+        : task
+    );
+    setCompletedToDo(updateCompletedToDos);
+    localStorage.setItem(
+      "completedToDos",
+      JSON.stringify(updateCompletedToDos)
+    );
+
+    setToDo(updatedToDoArray);
+    localStorage.setItem("toDoArray", JSON.stringify(updatedToDoArray));
   };
 
   useEffect(() => {
@@ -146,19 +173,24 @@ export default function Home() {
         <button>Add Task</button>
       </form>
       <h2>Current Task List:</h2>
-      {toDO.map((task) => (
-        <ToDoCard
-          key={task.id}
-          id={task.id}
-          title={task.title}
-          description={task.description || undefined}
-          deadline={task.deadline}
-          deadlineDate={task.deadline === true ? task.deadlineDate : undefined}
-          timestamp={task.timestamp}
-          completed={task.completed}
-          deleteTask={() => deleteToDo(task.id)}
-        />
-      ))}
+      {toDO
+        .filter((task) => !task.completed)
+        .map((task) => (
+          <ToDoCard
+            key={task.id}
+            id={task.id}
+            title={task.title}
+            description={task.description || undefined}
+            deadline={task.deadline}
+            deadlineDate={
+              task.deadline === true ? task.deadlineDate : undefined
+            }
+            timestamp={task.timestamp}
+            completed={task.completed}
+            toggleTask={() => deleteToDo(task.id)}
+            checkCompleted={() => toggleCompleted(task.id)}
+          />
+        ))}
     </section>
   );
 }
