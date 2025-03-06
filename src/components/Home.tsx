@@ -100,6 +100,13 @@ export default function Home() {
     localStorage.setItem("toDoArray", JSON.stringify(toDoUpdate));
   };
 
+  const deleteToDo = (id: string) => {
+    let toDoArray = JSON.parse(localStorage.getItem("toDoArray") || "[]");
+    toDoArray = toDoArray.filter((toDo: ToDoProps) => toDo.id !== id);
+    localStorage.setItem("toDoArray", JSON.stringify(toDoArray));
+    setToDo(toDoArray);
+  };
+
   useEffect(() => {
     const toDoArray = JSON.parse(localStorage.getItem("toDoArray") || "[]");
     if (toDoArray.length > 0) setToDo(toDoArray);
@@ -131,13 +138,9 @@ export default function Home() {
           onChange={(e) => setDescription(e.target.value)}
         />
         <legend>Set A Deadline:</legend>
-        <select name="" id="">
-          <option onSelect={() => setDeadlineState(false)} value="">
-            No Deadline
-          </option>
-          <option onSelect={() => setDeadlineState(true)} value="">
-            Custom Date
-          </option>
+        <select onChange={(e) => setDeadlineState(e.target.value === "custom")}>
+          <option value="none">No Deadline</option>
+          <option value="custom">Custom Date</option>
         </select>
         {deadlineState && deadline()}
         <button>Add Task</button>
@@ -153,6 +156,7 @@ export default function Home() {
           deadlineDate={task.deadline === true ? task.deadlineDate : undefined}
           timestamp={task.timestamp}
           completed={task.completed}
+          deleteTask={() => deleteToDo(task.id)}
         />
       ))}
     </section>

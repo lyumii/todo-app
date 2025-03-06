@@ -7,6 +7,7 @@ export interface ToDoProps {
   deadlineDate?: string;
   completed: boolean;
   completedTimestamp?: string;
+  deleteTask?: () => void;
 }
 
 export default function ToDoCard(props: ToDoProps) {
@@ -18,6 +19,7 @@ export default function ToDoCard(props: ToDoProps) {
       {props.deadline && <p>{props.deadline}</p>}
       {!props.completed && <input type="checkbox" />}
       {props.completedTimestamp && <p>{props.completedTimestamp}</p>}
+      <button onClick={props.deleteTask}>Delete Task</button>
     </article>
   );
 }
