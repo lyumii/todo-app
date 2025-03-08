@@ -139,6 +139,22 @@ export default function Home() {
     if (toDoArray.length > 0) setToDo(toDoArray);
   }, []);
 
+  useEffect(() => {
+    const syncTodos = () => {
+      const storedToDos = JSON.parse(localStorage.getItem("toDoArray") || "[]");
+
+      setToDo([...storedToDos]);
+    };
+
+    syncTodos();
+
+    window.addEventListener("storage", syncTodos);
+
+    return () => {
+      window.removeEventListener("storage", syncTodos);
+    };
+  }, []);
+
   return (
     <section>
       <h2>Add New Task:</h2>

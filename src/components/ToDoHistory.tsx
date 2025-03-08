@@ -19,31 +19,35 @@ export default function ToDoHistory() {
   const toDoAgain = (id: string) => {
     let toDoArray = JSON.parse(localStorage.getItem("toDoArray") || "[]");
 
-    if (toDoArray.find((task: ToDoProps) => task.id === id)) return;
+    // ✅ Ensure we replace the task if it already exists
+    let filteredToDoArray = toDoArray.filter(
+      (task: ToDoProps) => task.id !== id
+    );
 
+    // Find the task in completedToDos
     const returnedToDo = toDos.find((task: ToDoProps) => task.id === id);
     if (!returnedToDo) return;
-    const updatedToDoArray = [...toDoArray, returnedToDo];
-    const returnedToDoArray = updatedToDoArray.map((task: ToDoProps) =>
-      task.id === id
-        ? {
-            ...task,
-            completed: false,
-            completedTimestamp: "",
-            timestampHistory: [
-              ...(task.timestampHistory ?? []),
-              task.completedTimestamp,
-            ].filter(Boolean),
-            deadlineHistory: [
-              ...(task.deadlineHistory ?? []),
-              task.deadline,
-            ].filter(Boolean),
-            deadline: "", // fix after other deadline functions are done
-          }
-        : task
-    );
-    localStorage.setItem("toDoArray", JSON.stringify(returnedToDoArray));
-    setToDos((current) => current.filter((task) => task.id !== id));
+
+    // ✅ Force a new task object (so React detects state change)
+    const updatedTask = {
+      ...returnedToDo,
+      completed: false,
+      completedTimestamp: "",
+      timestampHistory: [
+        ...(returnedToDo.timestampHistory ?? []),
+        returnedToDo.completedTimestamp,
+      ].filter(Boolean),
+      deadlineHistory: [
+        ...(returnedToDo.deadlineHistory ?? []),
+        returnedToDo.deadline,
+      ].filter(Boolean),
+      deadline: "",
+    };
+
+    const updatedToDoArray = [...filteredToDoArray, updatedTask];
+    localStorage.setItem("toDoArray", JSON.stringify(updatedToDoArray));
+
+    window.dispatchEvent(new Event("storage"));
   };
 
   useEffect(() => {
